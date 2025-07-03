@@ -30,6 +30,11 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
+# Firebase debug logs
+firebase-debug.log
+firestore-debug.log
+pglite-debug.log
+
 # env files (can opt-in for committing if needed)
 .env*
 
