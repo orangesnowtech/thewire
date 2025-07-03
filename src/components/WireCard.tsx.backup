@@ -1,0 +1,327 @@
+import { Wire } from '@/types';
+import { formatDate } from '@/utils/formatDate';
+import { numberCommas } from '@/utils/numberCommas';
+
+interface WireCardProps {
+  wire: Wire;
+}
+
+// Function to calculate relative time
+const getRelativeTime =        {/* Location - Most important filter */}
+        <div className="flex space-x-2 items-center mb-1">
+          <span className="text-xl">📍</span>
+          <span className="text-gray-700 dark:text-gray-300">
+            {locations && locations.length > 0 ? locations.join(', ') : 'Not specified'}
+          </span>
+        </div> Date | any): string => {
+  const now = new Date();
+  const postDate = date instanceof Date ? date : date.toDate ? date.toDate() : new Date(date);
+  const diffInMs = now.getTime() - postDate.getTime();
+  const diffInSecs = Math.floor(diffInMs / 1000);
+  const diffInMins = Math.floor(diffInSecs / 60);
+  const diffInHours = Math.floor(diffInMins / 60);
+  const diffInDays = Math.floor(diffInHours / 24);
+  const diffInWeeks = Math.floor(diffInDays / 7);
+  const diffInMonths = Math.floor(diffInDays / 30);
+  const diffInYears = Math.floor(diffInDays / 365);
+
+  if (diffInYears > 0) {
+    return `${diffInYears} year${diffInYears > 1 ? 's' : ''} ago`;
+  } else if (diffInMonths > 0) {
+    return `${diffInMonths} month${diffInMonths > 1 ? 's' : ''} ago`;
+  } else if (diffInWeeks > 0) {
+    return `${diffInWeeks} week${diffInWeeks > 1 ? 's' : ''} ago`;
+  } else if (diffInDays > 0) {
+    return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
+  } else if (diffInHours > 0) {
+    return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+  } else if (diffInMins > 0) {
+    return `${diffInMins} minute${diffInMins > 1 ? 's' : ''} ago`;
+  } else {
+    return 'Just now';
+  }
+};
+
+export default function WireCard({ wire }: WireCardProps) {
+  // Safe access to arrays with defaults
+  const likes = wire.likes || [];
+  const responses = wire.responses || [];
+  const locations = wire.locations || [];
+  const goodBudget = wire.goodBudget || [];
+  const lowBudget = wire.lowBudget || [];
+  
+  const getRequestTypeIcon = (type: string) => {
+    switch (type) {
+      case 'Buy': return '🏠';
+      case 'Rent': return '🏡';
+      case 'Short Let': return '🏢';
+      case 'Joint Venture': return '🤝';
+      default: return '📝';
+    }
+  };
+
+  const getRequestTypeColor = (type: string) => {
+    switch (type) {
+      case 'Buy': return 'bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200';
+      case 'Rent': return 'bg-secondary-100 text-secondary-800 dark:bg-secondary-900 dark:text-secondary-200';
+      case 'Short Let': return 'bg-tertiary-100 text-tertiary-800 dark:bg-tertiary-900 dark:text-tertiary-200';
+      case 'Joint Venture': return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+    }
+  };
+
+  return (
+    <div className="flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-shadow duration-200 max-w-2xl mx-auto">
+      {/* Header */}
+      <div className="flex items-center justify-between pt-4 px-8">
+        <div className="flex items-center gap-3">
+          <p className="text-lg font-bold text-gray-900 dark:text-white">{wire.requestType}</p>
+          <span className="text-xs text-gray-500 dark:text-gray-400">•</span>
+          <span className="text-xs text-gray-500 dark:text-gray-400">Posted {getRelativeTime(wire.time)}</span>
+        </div>
+        <p className="text-xs text-gray-500 dark:text-gray-400">ID: {wire.requestID}</p>
+      </div>
+
+      {/* Dynamic Content Based on Request Type and Property Type */}
+      
+      {/* Buy Wire - Bare Land */}
+      {wire.requestType === 'Buy' && wire.propertyType === 'Bare Land' && (
+        <div className="flex grow flex-col px-8">
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            {wire.propertyType} for {wire.useCase} use
+          </p>
+          <div className="flex h-full pt-4 space-x-2 items-center">
+            <span className="text-xl">📍</span>
+            <p className="text-gray-700 dark:text-gray-300">
+              {wire.units} {wire.landSize}{wire.units && wire.units > 1 ? 's' : ''}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Buy Wire - Not Bare Land & Residential */}
+      {wire.requestType === 'Buy' && wire.propertyType !== 'Bare Land' && wire.useCase === 'Residential' && (
+        <div className="flex grow flex-col px-8">
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            {wire.buildingType} for {wire.useCase} use
+          </p>
+          <div className="flex space-x-2 pt-4 items-center">
+            <span className="text-xl">🛏️</span>
+            <p className="text-gray-700 dark:text-gray-300">{wire.roomsNo} Bedrooms</p>
+          </div>
+          <div className="flex space-x-2 items-center">
+            <span className="text-xl">🚽</span>
+            <p className="text-gray-700 dark:text-gray-300">
+              {wire.toiletBaths} {wire.toiletBaths === '1' ? 'Toilet' : 'Toilets'}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Buy Wire - Not Bare Land & Commercial */}
+      {wire.requestType === 'Buy' && wire.propertyType !== 'Bare Land' && wire.useCase === 'Commercial' && (
+        <div className="px-8 grow">
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            {wire.useCase} property in {wire.commercialPropertyType}
+          </p>
+          <div className="flex space-x-2 pt-4 items-center">
+            <span className="text-xl">📐</span>
+            <p className="text-gray-700 dark:text-gray-300">
+              {numberCommas(wire.floorSpace ?? 0)}<span className="text-sm">sqm</span>
+            </p>
+          </div>
+          <div className="flex space-x-2 items-center">
+            <span className="text-xl">🏢</span>
+            <p className="text-gray-700 dark:text-gray-300">{wire.commercialUseCase}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Rent Wire - Bare Land */}
+      {wire.requestType === 'Rent' && wire.propertyType === 'Bare Land' && (
+        <div className="px-8 grow">
+          <div className="text-sm pb-4">
+            <p className="text-gray-600 dark:text-gray-300">
+              {wire.propertyType} for {wire.useCase} use
+            </p>
+          </div>
+          <div className="flex space-x-2 items-center">
+            <span className="text-xl">📍</span>
+            <p className="text-gray-700 dark:text-gray-300">
+              {wire.units} {wire.landSize}{wire.units && wire.units > 1 ? 's' : ''}
+            </p>
+          </div>
+          <div className="flex space-x-2 items-center">
+            <span className="text-xl">🕒</span>
+            <p className="text-gray-700 dark:text-gray-300">{wire.rentDuration}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Rent Wire - Commercial */}
+      {wire.requestType === 'Rent' && wire.propertyType !== 'Bare Land' && wire.useCase === 'Commercial' && (
+        <div className="px-8">
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            {wire.commercialUseCase} in {wire.commercialPropertyType}
+          </p>
+          <div className="pt-4">
+            <div className="flex space-x-2 items-center">
+              <span className="text-xl">📐</span>
+              <p className="text-gray-700 dark:text-gray-300">
+                {numberCommas(wire.floorSpace ? wire.floorSpace : 0)}<span className="text-sm">sqm</span>
+              </p>
+            </div>
+            <div className="flex space-x-2 items-center">
+              <span className="text-xl">🕒</span>
+              <p className="text-gray-700 dark:text-gray-300">{wire.rentDuration}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Rent Wire - Residential */}
+      {wire.requestType === 'Rent' && wire.propertyType !== 'Bare Land' && wire.useCase === 'Residential' && (
+        <div className="px-8">
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            {wire.buildingType === 'Any of the above' ? 'Property' : wire.buildingType} for {wire.useCase} use
+          </p>
+          <div className="flex pt-4 space-x-2 items-center">
+            <span className="text-xl">🛏️</span>
+            <p className="text-gray-700 dark:text-gray-300">
+              {wire.roomsNo} {wire.roomsNo === '1' ? 'room' : 'rooms'}
+            </p>
+          </div>
+          <div className="flex space-x-2 items-center">
+            <span className="text-xl">🚽</span>
+            <p className="text-gray-700 dark:text-gray-300">
+              {wire.toiletBaths} {wire.toiletBaths === '1' ? 'toilet' : 'toilets'}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Short Let Wire */}
+      {wire.requestType === 'Short Let' && (
+        <div className="px-8">
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            {wire.buildingType === 'Any of the above' ? 'Property' : wire.buildingType} for short-term rental
+          </p>
+          <div className="flex pt-4 space-x-2 items-center">
+            <span className="text-xl">🛏️</span>
+            <p className="text-gray-700 dark:text-gray-300">
+              {wire.roomsNo} {wire.roomsNo === '1' ? 'room' : 'rooms'}
+            </p>
+          </div>
+          <div className="flex space-x-2 items-center">
+            <span className="text-xl">🚽</span>
+            <p className="text-gray-700 dark:text-gray-300">
+              {wire.toiletBaths} {wire.toiletBaths === '1' ? 'toilet' : 'toilets'}
+            </p>
+          </div>
+          <div className="flex space-x-2 items-center">
+            <span className="text-xl">📅</span>
+            <p className="text-gray-700 dark:text-gray-300">
+              Check-in: {wire.checkInDate ? formatDate(wire.checkInDate) : 'Not specified'}
+            </p>
+          </div>
+          <div className="flex space-x-2 items-center">
+            <span className="text-xl">📅</span>
+            <p className="text-gray-700 dark:text-gray-300">
+              Check-out: {wire.checkOutDate ? formatDate(wire.checkOutDate) : 'Not specified'}
+            </p>
+          </div>
+          {wire.amenities && wire.amenities.length > 0 && (
+            <div className="flex space-x-2 items-start mt-2">
+              <span className="text-xl">🏨</span>
+              <div className="text-gray-700 dark:text-gray-300">
+                <p className="font-medium text-sm">Required Amenities:</p>
+                <p className="text-sm">{wire.amenities.join(', ')}</p>
+              </div>
+            </div>
+          )}
+          {wire.services && wire.services.length > 0 && (
+            <div className="flex space-x-2 items-start mt-2">
+              <span className="text-xl">🛎️</span>
+              <div className="text-gray-700 dark:text-gray-300">
+                <p className="font-medium text-sm">Required Services:</p>
+                <p className="text-sm">{wire.services.join(', ')}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Common Footer Section for All Wire Types */}
+      <div className="px-8 py-4">
+        {/* Location - Most important filter */}
+        <div className="flex space-x-2 items-center mb-1">
+          <span className="text-xl">�</span>
+          <span className="text-gray-700 dark:text-gray-300">
+            {locations && locations.length > 0 ? locations.join(', ') : 'Not specified'}
+          </span>
+        </div>
+
+        {/* Only show budget if wire has budget fields */}
+        {'minBudget' in wire && 'maxBudget' in wire && (
+          <div className="flex space-x-2 items-center mb-1">
+            <span className="text-xl">💰</span>
+            <p className="text-gray-700 dark:text-gray-300">
+              ₦{wire.minBudget !== undefined ? numberCommas(wire.minBudget) : 'N/A'} - 
+              ₦{wire.maxBudget !== undefined ? numberCommas(wire.maxBudget) : 'N/A'}
+            </p>
+            
+            {/* Budget feedback buttons inline */}
+            <div className="flex items-center space-x-2 ml-4">
+              <button className="flex items-center gap-1 px-2 py-1 bg-primary-100 dark:bg-primary-900/30 rounded-full hover:bg-primary-200 dark:hover:bg-primary-900/50 transition-colors">
+                <span className="text-primary-600 dark:text-primary-400 text-sm">👍</span>
+                <span className="text-xs font-medium text-primary-700 dark:text-primary-300">{goodBudget.length}</span>
+              </button>
+              
+              <button className="flex items-center gap-1 px-2 py-1 bg-red-100 dark:bg-red-900/30 rounded-full hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors">
+                <span className="text-red-600 dark:text-red-400 text-sm">👎</span>
+                <span className="text-xs font-medium text-red-700 dark:text-red-300">{lowBudget.length}</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Only show payment options if wire has budget fields */}
+        {'paymentOptions' in wire && (
+          <div className="flex space-x-2 items-center mb-1">
+            <span className="text-xl">�</span>
+            <p className="text-gray-700 dark:text-gray-300">{wire.paymentOptions} payment</p>
+          </div>
+        )}
+      </div>
+
+      {/* Action Area */}
+      <div className="border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 px-8 py-4">
+        <div className="flex items-center justify-between">
+          {/* Response count */}
+          <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-1 px-3 py-2 bg-secondary-100 dark:bg-secondary-900/30 rounded-lg">
+              <span className="text-secondary-600 dark:text-secondary-400">💬</span>
+              <span className="text-sm font-medium text-secondary-700 dark:text-secondary-300">{responses.length}</span>
+            </div>
+            <span className="text-xs text-gray-500 dark:text-gray-400">Responses</span>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex items-center space-x-3">
+            <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200">
+              <span className="text-base">✈️</span>
+              Share
+            </button>
+            
+            <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Respond
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
